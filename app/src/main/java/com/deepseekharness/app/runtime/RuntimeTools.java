@@ -134,6 +134,8 @@ final class RuntimeTools {
                 "startup-checkpoints.py", "device-shell-policy.py", "adb-shell.py"})
             install(context, rootfs, name, "root/.dsh/" + name, false);
         install(context, rootfs, "dsha-device-shell.sh", "root/dsh-bin/adb-shell", true);
+        for (String file : new String[]{"package.json", "package-lock.json", "install.sh", "runner.cjs"})
+            install(context, rootfs, "claude/" + file, "usr/local/share/dsha/claude/" + file, false);
         for (String file : new String[]{"package.json", "cordis.patch.yml", "index.js", "activity.js", "runtime-plugins.js", "client.js"})
             install(context, rootfs, "app-integration/" + file, "root/dsha-app-integration/" + file, false);
         for (String name : com.deepseekharness.app.util.BuiltinPlugins.DEFAULT_BUILTINS) {

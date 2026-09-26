@@ -331,7 +331,7 @@ public class DshaAccessibilityService extends AccessibilityService {
     /** 按坐标点按。坐标从 uiDump 的「中心=」里取。 */
     public static String uiTap(int x, int y) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
-            return "手势点按需 Android 7+（当前系统过旧）";
+            return "[ERR] 手势点按需 Android 7+；Android 6 请使用文字点击";
         }
         DshaAccessibilityService s = instance;
         if (s == null) return NOT_READY;
@@ -486,7 +486,7 @@ public class DshaAccessibilityService extends AccessibilityService {
     /** 滑动：翻页、下拉刷新、侧滑都靠它。durationMs 太短系统会当成甩动。 */
     public static String uiSwipe(int x1, int y1, int x2, int y2, int durationMs) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.N) {
-            return "手势滑动需 Android 7+（当前系统过旧）";
+            return "[ERR] 手势滑动需 Android 7+；Android 6 请使用控件滚动";
         }
         DshaAccessibilityService s = instance;
         if (s == null) return NOT_READY;
@@ -508,6 +508,36 @@ public class DshaAccessibilityService extends AccessibilityService {
         return new android.accessibilityservice.GestureDescription.Builder()
                 .addStroke(new android.accessibilityservice.GestureDescription.StrokeDescription(p, 0, 50))
                 .build();
+    }
+
+    /** API 23 通过控件动作翻页；一个请求最多尝试一个控件，失败不盲目重复。 */
+    public static String uiScroll(String direction) {
+        if (!"forward".equals(direction) && !"backward".equals(direction)) return "[ERR] 无效的滚动方向";
+        DshaAccessibilityService service = instance;
+        if (service == null) return NOT_READY;
+        AccessibilityNodeInfo root = null, target = null;
+        try {
+            root = activeWindow(service);
+            if (root == null) return "[ERR] 取不到当前窗口";
+            target = findScrollable(root, 0);
+            if (target == null) return "[ERR] 当前页面没有可滚动控件";
+            int action = "forward".equals(direction) ? AccessibilityNodeInfo.ACTION_SCROLL_FORWARD : AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD;
+            return target.performAction(action) ? "OK 已请求滚动，请重新读屏确认" : "[ERR] 控件无法继续滚动";
+        } catch (Throwable error) { return "[ERR] 滚动失败：" + SensitiveData.redact(String.valueOf(error)); }
+        finally { if (target != null) target.recycle(); if (root != null) root.recycle(); }
+    }
+
+    private static AccessibilityNodeInfo findScrollable(AccessibilityNodeInfo node, int depth) {
+        if (node == null || depth > 24) return null;
+        if (node.isScrollable() && node.isEnabled() && node.isVisibleToUser()) return AccessibilityNodeInfo.obtain(node);
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            AccessibilityNodeInfo hit;
+            try { hit = findScrollable(child, depth + 1); } finally { child.recycle(); }
+            if (hit != null) return hit;
+        }
+        return null;
     }
 
     /** 派发手势并等结果：dispatchGesture 是异步回调，agent 那边要的是同步答复 */

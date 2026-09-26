@@ -21,6 +21,8 @@
 
 > 🤖 下一个 AI / 开发者请先读 **[AGENTS.md](AGENTS.md)**（项目结构、启动契约、踩过的坑），不要先全库扫描。
 
+本 fork 新增 **Claude Code** 入口：原生聊天、登录终端、工具授权和手机 MCP 操作。兼容版继续面向 Android 6+ ARM64；旧系统的坐标手势与截图有明确限制。安装方式、功能矩阵和验证范围见 [Claude Code 使用说明](docs/claude-code.md)。
+
 
 ## ❤️ 赞助商
 

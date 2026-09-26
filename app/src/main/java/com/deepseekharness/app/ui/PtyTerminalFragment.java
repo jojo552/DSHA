@@ -144,7 +144,12 @@ public final class PtyTerminalFragment extends Fragment
             root.findViewById(R.id.terminal_new).setEnabled(false);renderTabs();
             return;
         }
-        if (!sessions.wasInitialized()) startTerminal(); else attachSelected();
+        boolean claude = getArguments() != null && getArguments().getBoolean("claude_terminal", false);
+        if (claude) root.findViewById(R.id.pty_simple).setVisibility(View.GONE);
+        if (claude && !getArguments().getBoolean("claude_opened", false)) {
+            getArguments().putBoolean("claude_opened", true);
+            startTerminal();
+        } else if (!sessions.wasInitialized()) startTerminal(); else attachSelected();
     }
 
     /** 已有会话就接回去（切页面回来不丢历史），没有就起一个。 */
@@ -154,7 +159,18 @@ public final class PtyTerminalFragment extends Fragment
             if(!blocked.isEmpty()){title.setText(blocked);return;}
             // 初始 80x24 只是占位：attachSession 之后 TerminalView 会按控件实测的字宽
             // 重新算行列并通知 PTY（否则 TUI 的边框会错位）。
-            PtySession ns = PtySession.start(c.proot(), 80, 24, null);
+            PtySession ns;
+            if (getArguments() != null && getArguments().getBoolean("claude_terminal", false)) {
+                String command = "/root/.local/share/dsha-claude/current/node_modules/.bin/claude";
+                if (getArguments().getBoolean("claude_login", false)) command += " auth login";
+                else command += " --mcp-config " + com.deepseekharness.app.util.ShellQuote.arg(
+                        "{\"mcpServers\":{\"dsha-android\":{\"command\":\"/usr/local/bin/node\",\"args\":[\"/root/dsha-computer-use-android/lib/server.cjs\"]}}}");
+                ns = PtySession.start(c.proot(), 80, 24, null, "/bin/bash", "-lc",
+                        "stty sane 2>/dev/null || true; " + command + "; exec /bin/bash -l");
+                com.deepseekharness.app.core.ClaudeSession.registerTerminal(ns);
+                if (com.deepseekharness.app.HttpShellService.instance() == null)
+                    new com.deepseekharness.app.HttpShellService(requireContext().getApplicationContext()).start();
+            } else ns = PtySession.start(c.proot(), 80, 24, null);
             sessions.add(ns);
             attachSelected();
         } catch (Throwable e) {

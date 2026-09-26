@@ -87,6 +87,10 @@ public final class PtySession implements TerminalSessionClient {
      *             瞎给一个值会让 TUI 的边框错位。
      */
     public static PtySession start(ProotBootstrap proot, int cols, int rows, Listener l) {
+        return start(proot, cols, rows, l, new String[0]);
+    }
+
+    public static PtySession start(ProotBootstrap proot, int cols, int rows, Listener l, String... guestCommand) {
         PtySession ps = new PtySession();
         ps.attachListener(l);
         // 必须先登记异步寿命，再准备目录和 fork，避免维护切换与终端启动交错。
@@ -95,7 +99,7 @@ public final class PtySession implements TerminalSessionClient {
         try {
         try { proot.requireUserRuntime(); } catch (java.io.IOException error) { throw new IllegalStateException(error.getMessage(), error); }
         proot.ensureAndroidGroups(); // 登录 shell 的 $(groups) 依赖 /etc/group 里有 Android GID
-        String[] argv = proot.ptyArgv();
+        String[] argv = proot.ptyArgv(guestCommand);
         ps.prootLauncher = com.deepseekharness.app.util.ProcessIdentity.isProot(argv[0]);
         String[] env = proot.ptyEnv();
         // args 就是 argv（含 argv[0]）：查过 termux.c，Java 数组原样转成 argv 后

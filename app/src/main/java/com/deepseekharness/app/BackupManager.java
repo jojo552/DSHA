@@ -64,6 +64,7 @@ public final class BackupManager {
             // 终端也可能运行 dsh web；先按各自出生身份关闭，不能让全局 Web 判据等待尚未关闭的终端。
             com.deepseekharness.app.ui.PtyTerminalFragment.shutdownAndWait(5000);
             com.deepseekharness.app.ui.TerminalFragment.shutdownShellAndWait(5000);
+            com.deepseekharness.app.core.ClaudeSession.shutdownAndWait(8000);
             stopWebForMaintenance(controller);
             com.deepseekharness.app.util.RuntimeTaskRegistry.Maintenance maintenance =
                     com.deepseekharness.app.core.RuntimeTasks.tryEnterMaintenance();

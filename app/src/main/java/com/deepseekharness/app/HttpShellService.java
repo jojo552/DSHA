@@ -739,20 +739,26 @@ public final class HttpShellService {
     /** @param action 给用户看的具体动作描述 —— 弹窗必须说清 AI 要干什么，
      *               而不是笼统一句「操作屏幕」，否则用户等于盲签。 */
     private boolean uiAuthorized(String action) {
+        long claudeSession = com.deepseekharness.app.core.ClaudeSession.phoneSession();
         String pkg = DshaAccessibilityService.currentPackage();
         boolean sensitive = isSensitiveApp(pkg);
         var controller = com.deepseekharness.app.core.HarnessController.get(ctx);
         long generation = controller.getWebGeneration(), revision = uiGrant.revision();
-        if (!sensitive && hasScreenGrant(ctx)) {
+        if (claudeSession == 0 && !sensitive && hasScreenGrant(ctx)) {
             return true;
         }
         String where = pkg.isEmpty() ? com.deepseekharness.app.util.UiText.text("当前界面") : pkg;
         String why = sensitive
                 ? com.deepseekharness.app.util.UiText.text("在【") + where + com.deepseekharness.app.util.UiText.text("】里：") + action
                 + com.deepseekharness.app.util.UiText.text("  # 这类应用涉及支付或隐私，每次都需要你确认")
-                : action + com.deepseekharness.app.util.UiText.choose("  # 本次 DSH 运行期间有效，可在设备能力授权中随时撤销", "  # Valid for this DSH run. Revoke anytime in Device permissions");
+                : action + (claudeSession > 0
+                    ? com.deepseekharness.app.util.UiText.choose("  # 仅允许 Claude 本次操作", "  # Allow this Claude action only")
+                    : com.deepseekharness.app.util.UiText.choose("  # 本次 DSH 运行期间有效，可在设备能力授权中随时撤销", "  # Valid for this DSH run. Revoke anytime in Device permissions"));
         boolean ok = requestUserConfirm(why);
+        if (claudeSession > 0 && claudeSession != com.deepseekharness.app.core.ClaudeSession.phoneSession()) return false;
         if (ok && !sensitive) {
+            // Claude 独立于 dsh web；仅允许本次仍存活的 Claude 请求，不缓存到 DSH 的授权代次。
+            if (claudeSession > 0 && claudeSession == com.deepseekharness.app.core.ClaudeSession.phoneSession()) return true;
             return !controller.isStopping() && !controller.isUserStopped()
                     && controller.getWebGeneration() == generation && uiGrant.accept(generation, revision);
         }
@@ -771,6 +777,15 @@ public final class HttpShellService {
         // 命中截屏，而截屏会把当前画面留到磁盘。
         String r = path.split("\\?", 2)[0];
         try {
+            if (r.equals("/app/ui/capabilities")) {
+                return com.deepseekharness.app.util.DeviceUiCapabilities.describe(Build.VERSION.SDK_INT, DshaAccessibilityService.connected()).toString();
+            }
+            if (r.equals("/app/ui/scroll")) {
+                String direction = getParam(q, "direction", "");
+                if (!"forward".equals(direction) && !"backward".equals(direction)) return "[ERR] 无效的滚动方向";
+                if (!uiAuthorized("滚动当前页面：" + direction)) return "[ERR] 你拒绝了这次滚动";
+                return DshaAccessibilityService.uiScroll(direction);
+            }
             if (r.equals("/app/ui/dump")) {
                 if (!uiAuthorized(com.deepseekharness.app.util.UiText.text("读取当前屏幕上的文字与控件"))) return com.deepseekharness.app.util.UiText.text("[ERR] 你拒绝了这次屏幕读取");
                 return DshaAccessibilityService.uiDump();

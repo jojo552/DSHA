@@ -53,6 +53,11 @@
         android:theme="@style/Theme.DeepseekHarness">
 
         <activity android:name=".ui.ModelSetupActivity" android:exported="false" />
+        <activity android:name=".ui.ClaudeActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.ClaudeTerminalActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+        <service android:name=".ClaudeService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="User-started local Claude Code task with visible progress and a stop action." />
+        </service>
         <activity android:name=".ui.CommunityActivity" android:exported="false" />
         <activity android:name=".ui.OnboardingPrepareActivity" android:exported="false" />
         <activity android:name=".ui.OnboardingReadyActivity" android:exported="false" />

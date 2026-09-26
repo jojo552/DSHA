@@ -2,6 +2,9 @@
 // MCP 只桥接已存在的 Android 设备接口；不暴露 shell、凭据读取或任意文件访问。
 const fs=require('node:fs/promises'),path=require('node:path');
 const definitions=[
+  ['android_capabilities','查询 Android 版本、无障碍连接与当前可用操作；手机操作前先调用。','/app/ui/capabilities',{}],
+  ['android_click_text','按最近读屏中的文字点击控件，支持 Android 6；不使用坐标手势。','/app/ui/tap',{text:{type:'string',minLength:1,maxLength:2000}}],
+  ['android_scroll','滚动当前页面的可滚动控件，支持 Android 6；forward 向后翻页，backward 向前翻页。','/app/ui/scroll',{direction:{type:'string',enum:['forward','backward']}}],
   ['android_get_state','读取当前 Android 页面结构。操作前读取，操作后再次验证。','/app/ui/dump',{}],
   ['android_screenshot','截取当前屏幕并返回图片。需要系统截屏能力和 DSHA 授权。','/app/ui/screenshot',{}],
   ['android_click','点击当前页面上的坐标；坐标必须来自最近一次观察。','/app/ui/tap',{x:{type:'integer',minimum:0},y:{type:'integer',minimum:0}}],
@@ -10,7 +13,7 @@ const definitions=[
   ['android_swipe','在观察过的页面上滑动。','/app/ui/swipe',{x1:{type:'integer',minimum:0},y1:{type:'integer',minimum:0},x2:{type:'integer',minimum:0},y2:{type:'integer',minimum:0},ms:{type:'integer',minimum:50,maximum:3000}}]
 ];
 const tools=definitions.map(([name,description,,properties])=>({name,description,inputSchema:{type:'object',properties,required:Object.keys(properties),additionalProperties:false}}));
-function validate(def,args){if(!args||typeof args!=='object'||Array.isArray(args))throw Error('INVALID_ARGUMENTS');const fields=def[3];if(Object.keys(args).some(k=>!Object.hasOwn(fields,k)))throw Error('UNKNOWN_ARGUMENT');for(const [key,rule]of Object.entries(fields)){const v=args[key];if(rule.type==='integer'&&(!Number.isInteger(v)||v<rule.minimum||rule.maximum!==undefined&&v>rule.maximum))throw Error('INVALID_'+key);if(rule.type==='string'&&(typeof v!=='string'||rule.maxLength&&v.length>rule.maxLength||rule.enum&&!rule.enum.includes(v)))throw Error('INVALID_'+key);}}
+function validate(def,args){if(!args||typeof args!=='object'||Array.isArray(args))throw Error('INVALID_ARGUMENTS');const fields=def[3];if(Object.keys(args).some(k=>!Object.hasOwn(fields,k)))throw Error('UNKNOWN_ARGUMENT');for(const [key,rule]of Object.entries(fields)){const v=args[key];if(rule.type==='integer'&&(!Number.isInteger(v)||v<rule.minimum||rule.maximum!==undefined&&v>rule.maximum))throw Error('INVALID_'+key);if(rule.type==='string'&&(typeof v!=='string'||rule.minLength&&v.trim().length<rule.minLength||rule.maxLength&&v.length>rule.maxLength||rule.enum&&!rule.enum.includes(v)))throw Error('INVALID_'+key);}}
 // 只识别桥返回的错误前缀；读屏正文可能包含终端日志里的 [ERR] 等普通文字。
 function bridgeFailed(result){return /^\s*(?:\[ERR\]|\[?(?:POLICY_BLOCKED|EXECUTION_UNKNOWN|NO_PERMISSION|DISABLED)\b)/.test(result);}
 // /sdcard 与 /storage/emulated/0 在 proot 中是两个独立挂载别名；各自校验同一允许目录。

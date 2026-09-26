@@ -29,7 +29,7 @@
 
 未连接无障碍服务时，能力查询会把相关动作标为不可用。Android 6 不会把“手势不支持”误报为成功。无控件树的游戏、画布或特殊应用仍可能无法操作。该接入没有增加 Root/ADB 截图或手势回退，也不自动切换通道重放操作。
 
-Android 6+ 是 APK 和原生功能的兼容目标。Claude Code 在 Ubuntu ARM64 内运行，仍受手机内核、内存和 proot 兼容性影响；**未取得 Android 6/7 真机与真实 Claude 鉴权测试结果前，不能把代码检查视为已证明完整运行**。
+Android 6+ 是 APK 和原生功能的兼容目标。Claude Code 在 Ubuntu ARM64 内运行，仍受手机内核、内存和 proot 兼容性影响。验收口径已收敛到 **Android 10 及以下**（low 兼容版），Android 6/7 真机不作为前置条件；**在真机安装本次构建并完成一次真实鉴权前，仍不能把代码检查视为已证明完整运行**。
 
 ## 实现与数据
 
@@ -54,6 +54,8 @@ bash -n app/src/main/assets/claude/install.sh
 
 SDK 测试使用模拟的官方查询接口，覆盖流式输出、续聊、并行授权、拒绝、提问、取消、错误和有界协议输入；手机 MCP 测试验证发现、参数、取消与错误识别，不发送真实设备操作。Java 测试覆盖 API 23/24/29/30 能力差异和协议边界。
 
-GitHub 工作流 `Claude 与 Android 兼容检查` 使用标准 Linux Android 工具链编译两版并执行单元测试。`-x prepareStandardAssets` 仅跳过离线 Ubuntu 包生成，这条验证命令不交付可安装 APK。真机布局、真实登录/计费请求、后台保活及非调试 APK 的进程回收仍需设备验收。
+2026-09-26 结果：以上检查全部通过。GitHub 工作流 [Claude 与 Android 兼容检查 run 36238981382](https://github.com/jojo552/DSHA/actions/runs/36238981382) 在标准 Linux Android 工具链上完成官方 CLI 安装与 SDK 入口检查，并编译两版执行单元测试 —— 两版各 625 项（合计 1250 项），0 失败、0 跳过。本地同一组 node/python/语法检查通过；本地两版单测 624 项通过、1 项因 POSIX 环境条件跳过。
+
+GitHub 工作流 `Claude 与 Android 兼容检查` 使用标准 Linux Android 工具链编译两版并执行单元测试。`-x prepareStandardAssets` 仅跳过离线 Ubuntu 包生成，这条验证命令不交付可安装 APK。真机布局、真实登录/计费请求、后台保活及非调试 APK 的进程回收仍需设备验收：Android 10 设备上已安装的 `0.1.7-alpha2low` 尚不含本次新增的 `/app/ui/capabilities` 与 `/app/ui/scroll`，需安装本次构建后复验。
 
 参考：[官方安装说明](https://code.claude.com/docs/en/setup)、[Agent SDK](https://platform.claude.com/docs/en/agent-sdk/overview)、[MCP 配置](https://code.claude.com/docs/en/mcp)。

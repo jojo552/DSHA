@@ -58,4 +58,15 @@ SDK 测试使用模拟的官方查询接口，覆盖流式输出、续聊、并�
 
 GitHub 工作流 `Claude 与 Android 兼容检查` 使用标准 Linux Android 工具链编译两版并执行单元测试。`-x prepareStandardAssets` 仅跳过离线 Ubuntu 包生成，这条验证命令不交付可安装 APK。真机布局、真实登录/计费请求、后台保活及非调试 APK 的进程回收仍需设备验收：Android 10 设备上已安装的 `0.1.7-alpha2low` 尚不含本次新增的 `/app/ui/capabilities` 与 `/app/ui/scroll`，需安装本次构建后复验。
 
+## 真机验收（Android 10 及以下）
+
+已发布的 `0.1.7-alpha2low` 没有本次新增的桥端点，所以本节要在**安装本次构建的 low 兼容版**之后执行。覆盖安装必须用发布用的那把 keystore（`DSHA_KEYSTORE`）：Android 只允许同签名覆盖安装，换密钥就只能卸载重装，会丢掉已有环境与数据。
+
+1. **能力查询**：`/app/ui/capabilities` 在 API 29 上应报 `android_get_state`、`android_click_text`、`android_type`、`android_key`、`android_scroll`、`android_click`、`android_swipe` 为 true，`android_screenshot` 为 false，guidance 提示该通道不支持截图。未连接无障碍服务时同一查询必须把这些动作标为不可用，不能把系统版本支持报成已授权。
+2. **文字点击**（Android 6 起可用）：`/app/ui/tap?text=<界面上的文字>` 应命中控件并弹原生确认；拒绝时返回 `[ERR] 你拒绝了这次点击`。
+3. **控件滚动**：`/app/ui/scroll?direction=forward` 返回 `OK 已请求滚动，请重新读屏确认` 或 `[ERR] 当前页面没有可滚动控件`；`direction=left` 必须返回 `[ERR] 无效的滚动方向`，不能当成成功。
+4. **坐标手势**：API 24 及以上的坐标点击与滑动可用；API 23 必须返回 `[ERR] 手势点按需 Android 7+；Android 6 请使用文字点击` / `[ERR] 手势滑动需 Android 7+；Android 6 请使用控件滚动`，不能静默失败或自动改成别的通道重放。
+5. **MCP 发现**：`tools/list` 应返回 9 个工具（新增 `android_capabilities`、`android_click_text`、`android_scroll`）；参数不合法时按协议返回错误码，不发送设备操作。
+6. **界面**：启动页 Claude Code 入口、连接配置、聊天流式输出与授权弹窗在短屏和 1.3 倍字体下可点可滚动；旋转、切页不丢正在执行的任务，通知可回到任务。
+
 参考：[官方安装说明](https://code.claude.com/docs/en/setup)、[Agent SDK](https://platform.claude.com/docs/en/agent-sdk/overview)、[MCP 配置](https://code.claude.com/docs/en/mcp)。

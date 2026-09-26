@@ -42,6 +42,12 @@ jobs:
           node tools/test-android-computer-use.mjs
           python3 tools/test-bridge-routes.py
           bash -n app/src/main/assets/claude/install.sh
+      - name: 验证锁定的官方 CLI 与 SDK
+        # 仅安装及检查入口，不发送模型请求或使用账号凭据。
+        run: |
+          npm ci --prefix app/src/main/assets/claude --no-audit --no-fund
+          app/src/main/assets/claude/node_modules/.bin/claude --version
+          node --input-type=module -e "import { query } from './app/src/main/assets/claude/node_modules/@anthropic-ai/claude-agent-sdk/sdk.mjs'; if (typeof query !== 'function') process.exit(1);"
       - name: 两版 Java 编译与单元测试
         # 编译无需离线 Ubuntu 镜像；此任务不产生或发布可安装 APK。
         run: bash gradlew :app:testStandardDebugUnitTest :app:testLowDebugUnitTest -x prepareStandardAssets --no-daemon

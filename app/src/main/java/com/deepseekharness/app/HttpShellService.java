@@ -930,6 +930,7 @@ public final class HttpShellService {
             + com.deepseekharness.app.util.UiText.text("带中文/空格的参数一律用 -G --data-urlencode，别手写 URL 编码。\n")
             + "\n"
             + com.deepseekharness.app.util.UiText.text("== 屏幕操作（无障碍服务，不需要 ADB/Shizuku）==\n")
+            + com.deepseekharness.app.util.UiText.choose("能力  /app/ui/capabilities   → 查系统版本、无障碍连接与当前可用操作；手机操作前先调用\n", "Capabilities  /app/ui/capabilities   → API level, accessibility state and available actions; call before device actions\n")
             + com.deepseekharness.app.util.UiText.text("读屏  curl -s \"127.0.0.1:3090/app/ui/dump?token=$T\"\n")
             + com.deepseekharness.app.util.UiText.text("      → 每行「[序号] \"文字\" 可点击 中心=(x,y) 区域=l,t,r,b」\n")
             + com.deepseekharness.app.util.UiText.text("点按  curl -s -G 127.0.0.1:3090/app/ui/tap --data-urlencode \"text=设置\" --data-urlencode \"token=$T\"\n")
@@ -937,8 +938,9 @@ public final class HttpShellService {
             + com.deepseekharness.app.util.UiText.text("输入  curl -s -G 127.0.0.1:3090/app/ui/input --data-urlencode \"text=内容\" --data-urlencode \"token=$T\"\n")
             + com.deepseekharness.app.util.UiText.text("      → 填到当前焦点框；没有焦点先 tap 一下输入框\n")
             + com.deepseekharness.app.util.UiText.text("按键  /app/ui/key?name=back  （back/home/recents/notifications/quicksettings/lock）\n")
+            + com.deepseekharness.app.util.UiText.choose("滚动  /app/ui/scroll?direction=forward|backward   → 按控件翻页，Android 6 也能用（坐标手势需 Android 7+）\n", "Scroll  /app/ui/scroll?direction=forward|backward   → scroll a scrollable node; works on Android 6 (coordinate gestures need Android 7+)\n")
             + com.deepseekharness.app.util.UiText.text("滑动  /app/ui/swipe?x1=500&y1=1500&x2=500&y2=500&ms=300\n")
-            + com.deepseekharness.app.util.UiText.choose("截屏  /app/ui/screenshot   → 存 PNG 到应用截图目录并返回路径（不回 base64）\n", "Screenshot  /app/ui/screenshot   → save a PNG in the app's screenshot folder and return its path (not base64)\n")
+            + com.deepseekharness.app.util.UiText.choose("截屏  /app/ui/screenshot   → 存 PNG 到应用截图目录并返回路径（不回 base64；无障碍截图需 Android 11+）\n", "Screenshot  /app/ui/screenshot   → save a PNG in the app's screenshot folder and return its path (not base64; accessibility screenshot needs Android 11+)\n")
             + com.deepseekharness.app.util.UiText.text("节奏：每次点按/输入后先 dump 再决定下一步，别凭记忆连点。\n")
             + "\n"
             + com.deepseekharness.app.util.UiText.text("== 独立虚拟屏（Android 11+；每次输入必须带最新 frameSeq）==\n")

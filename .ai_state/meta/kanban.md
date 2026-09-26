@@ -13,4 +13,8 @@
 
 验证（2026-09-26，分支 d97f677）：GitHub 工作流「Claude 与 Android 兼容检查」在标准 Linux Android 工具链上通过 —— 官方 CLI 安装与 SDK 入口检查通过，两版各 625 项单元测试（合计 1250 项）0 失败、0 跳过。本地同一组 node/python/语法检查通过，两版编译通过；本地单测 624 项通过、1 项因 POSIX 环境条件跳过。
 
-验收口径：用户确认收敛到 Android 10 及以下（low 兼容版），不要求 Android 6/7 真机前置。真机侧只核对到已安装的 0.1.7-alpha2low（versionCode 145）桥端点仍是 dump/tap/input/key/swipe，本次新增的 /app/ui/capabilities 与 /app/ui/scroll 尚未随包安装 —— 仍不声明真实 Claude 鉴权、完整运行与设备验收通过；新功能的真机验收需安装本次构建。
+验收口径：用户确认收敛到 Android 10 及以下（low 兼容版），不要求 Android 6/7 真机前置。E7E3 发布签名在上游手里，fork 产不出同签名覆盖包，因此本轮功能验收经用户重新授权改用并存安装（`tools/parallel-install.init.gradle`，包名 `com.dsh.client.verify`）。
+
+真机验收（2026-09-26，vivo V1914A / Android 10 / API 29，包 `0.1.7-alpha2-verifylow`）：`node tools/accept-android-device.mjs --static` → **通过 4、失败 0、跳过 4**。通过项为版本识别、`/app/ui/capabilities` 字段语义（未连接无障碍时全部动作报 false）、`/app/ui/scroll` 参数校验、内置插件 9 工具随包同步。用户本轮不启用无障碍，控件滚动/文字点击/坐标手势三个动作与界面观感**未覆盖**，不记为通过。
+
+仍未验证：真实 Claude 鉴权与模型请求、旧手机上的 CLI 内核运行、非调试 APK 的进程回收、无障碍动作真机可用性。

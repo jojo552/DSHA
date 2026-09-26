@@ -71,6 +71,19 @@ GitHub 工作流 `Claude 与 Android 兼容检查` 使用标准 Linux Android �
 5. **MCP 发现**：`tools/list` 应返回 9 个工具（新增 `android_capabilities`、`android_click_text`、`android_scroll`）；参数不合法时按协议返回错误码，不发送设备操作。
 6. **界面**：启动页 Claude Code 入口、连接配置、聊天流式输出与授权弹窗在短屏和 1.3 倍字体下可点可滚动；旋转、切页不丢正在执行的任务，通知可回到任务。
 
+### 2026-09-26 真机结果（Android 10 / API 29，vivo V1914A）
+
+用并存安装包（`com.dsh.client.verify`，versionCode 145 / `0.1.7-alpha2-verifylow`，minSdk 23，由本分支构建）在真机执行 `node tools/accept-android-device.mjs --static`：**通过 4、失败 0、跳过 4**。
+
+| 检查 | 结果 |
+|---|---|
+| `/app/version` 是本次构建 | ✅ BRIDGE_PROTOCOL=2 / APP_CODE=145 |
+| `/app/ui/capabilities` 字段语义 | ✅ API=29、`screenshot=false`；未连接无障碍时**全部动作报 false**，未把系统版本支持误报为已授权；guidance 正确提示该通道不支持截图 |
+| `/app/ui/scroll` 参数校验 | ✅ `direction=left` 与缺参都返回 `[ERR] 无效的滚动方向`，不弹确认 |
+| 内置插件工具随包同步 | ✅ 9 个（`android_capabilities`、`android_click_text`、`android_scroll` + 原有 6 个） |
+
+**未覆盖**（用户本轮不启用无障碍，脚本按"未覆盖"记录，不记为失败）：控件滚动、文字点击、坐标手势三个动作，以及第 6 条界面观感。因此本结果只证明端点存在性、能力语义、参数校验与插件同步，**不证明手机操作动作在真机可用**。
+
 ### 没有发布签名时：并存安装（已授权）
 
 E7E3 发布密钥由上游持有，fork 侧拿不到，因此覆盖安装拿不到同签名包。经用户明确重新授权（2026-09-26），本轮的**功能可用性验收**可以用隔离包名的并存安装；**发布交付仍必须用同签名正式 Release 覆盖安装**。
@@ -79,6 +92,8 @@ E7E3 发布密钥由上游持有，fork 侧拿不到，因此覆盖安装拿不�
 # Windows: set DSHA_ENABLE_PARALLEL_INSTALL=1 后再执行 gradlew.bat
 DSHA_ENABLE_PARALLEL_INSTALL=1 bash build.sh :app:assembleLowRelease -I tools/parallel-install.init.gradle
 ```
+
+没有 PC 也能出这个包：完整版 APK 需要 `app/src/main/assets/{offline-rootfs,dsh-runtime,ubuntu-tools}.bin` 三份输入，它们在仓库里不提交，但**官方 Release 的 APK 里就有原样的一份**。把它们从官方 APK 取出来放进 assets，再按仓库锁算出 `dsh-runtime.inputs.json` 与 `ubuntu-tools.inputs.json`（后者含 rootfs 内 `var/lib/dpkg/status` 的摘要），就能在任意 x86_64 Linux（含 CI）上构建——本次就是这样在服务器上重压 rootfs 并打包的。另需注意：`signingConfigs.publish` 在缺 `DSHA_KEYSTORE` 时**不会**自动退回 debug keystore，release 打包会直接失败，自测需自备一把测试签名。
 
 产物包名为 `com.dsh.client.verify`，与正式包并存，未配置 `DSHA_KEYSTORE` 时用本机 debug keystore 签名。判读时记住三条限制：桥端口 3090 与 web 端口 3080 是固定端口，隔离包与正式包不能同时对外服务，跑桥验收前先停掉正式包环境；隔离包要自建一份 Ubuntu 环境（2–3 GB）；包内写死 `com.dsh.client` 的几处（ADB 保活授权、设备策略豁免）只对正式包生效。
 

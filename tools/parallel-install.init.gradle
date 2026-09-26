@@ -1,0 +1,36 @@
+// 并存安装（隔离包名）验收构建：不改仓库里的包名与正式签名，产物可与正式包装在同一台手机上。
+//
+// 为什么存在：正式覆盖安装要求 E7E3 同签名，而该密钥由上游持有，fork 侧拿不到。
+// 用户已明确重新授权（2026-09-26）—— 见 docs/claude-code.md《真机验收（Android 10 及以下）》。
+// 授权仅限功能可用性验收；发布交付仍必须用同签名正式 Release 覆盖安装。
+//
+// 用法（Windows）：
+//   set DSHA_ENABLE_PARALLEL_INSTALL=1
+//   gradlew.bat :app:assembleLowRelease -I tools\parallel-install.init.gradle
+// 用法（Linux/macOS）：
+//   DSHA_ENABLE_PARALLEL_INSTALL=1 bash build.sh :app:assembleLowRelease -I tools/parallel-install.init.gradle
+//
+// 产物：app/build/outputs/apk/low/release/app-low-release.apk，包名 com.dsh.client.verify。
+// 未配置 DSHA_KEYSTORE 时用本机 AGP debug keystore 签名 —— 并存安装不需要同签名。
+//
+// 限制（验收判读时要记住）：
+//   · 桥端口 3090 与 web 端口 3080 都是固定端口：隔离包与正式包不能同时对外服务，
+//     跑桥相关验收前要先停掉正式包的环境。
+//   · 隔离包要自建一份 Ubuntu 环境（占 2–3 GB）。
+//   · 包内写死 "com.dsh.client" 的几处（ADB 保活授权、设备策略豁免）只对正式包生效。
+if (System.getenv('DSHA_ENABLE_PARALLEL_INSTALL') != '1') {
+    throw new GradleException('并存安装需要显式授权：设置 DSHA_ENABLE_PARALLEL_INSTALL=1（发布交付仍用同签名正式 Release）')
+}
+
+def verifySuffix = '.verify'
+
+gradle.beforeProject { project ->
+    if (project.path == ':app') {
+        project.plugins.withId('com.android.application') {
+            def android = project.extensions.getByName('android')
+            android.defaultConfig.applicationIdSuffix = verifySuffix
+            android.defaultConfig.versionNameSuffix = '-verify'
+            project.logger.lifecycle("并存安装：包名后缀 ${verifySuffix}（与正式包并存，不参与发布交付）")
+        }
+    }
+}

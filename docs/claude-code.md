@@ -62,11 +62,24 @@ GitHub 工作流 `Claude 与 Android 兼容检查` 使用标准 Linux Android �
 
 已发布的 `0.1.7-alpha2low` 没有本次新增的桥端点，所以本节要在**安装本次构建的 low 兼容版**之后执行。覆盖安装必须用发布用的那把 keystore（`DSHA_KEYSTORE`）：Android 只允许同签名覆盖安装，换密钥就只能卸载重装，会丢掉已有环境与数据。
 
+执行方式：`node tools/accept-android-device.mjs`（在手机容器内跑，`--static` 只做不需要确认的项，`--gesture` 加验坐标手势）。手机旁要有人，每次手机操作都会弹原生确认。
+
 1. **能力查询**：`/app/ui/capabilities` 在 API 29 上应报 `android_get_state`、`android_click_text`、`android_type`、`android_key`、`android_scroll`、`android_click`、`android_swipe` 为 true，`android_screenshot` 为 false，guidance 提示该通道不支持截图。未连接无障碍服务时同一查询必须把这些动作标为不可用，不能把系统版本支持报成已授权。
 2. **文字点击**（Android 6 起可用）：`/app/ui/tap?text=<界面上的文字>` 应命中控件并弹原生确认；拒绝时返回 `[ERR] 你拒绝了这次点击`。
 3. **控件滚动**：`/app/ui/scroll?direction=forward` 返回 `OK 已请求滚动，请重新读屏确认` 或 `[ERR] 当前页面没有可滚动控件`；`direction=left` 必须返回 `[ERR] 无效的滚动方向`，不能当成成功。
 4. **坐标手势**：API 24 及以上的坐标点击与滑动可用；API 23 必须返回 `[ERR] 手势点按需 Android 7+；Android 6 请使用文字点击` / `[ERR] 手势滑动需 Android 7+；Android 6 请使用控件滚动`，不能静默失败或自动改成别的通道重放。
 5. **MCP 发现**：`tools/list` 应返回 9 个工具（新增 `android_capabilities`、`android_click_text`、`android_scroll`）；参数不合法时按协议返回错误码，不发送设备操作。
 6. **界面**：启动页 Claude Code 入口、连接配置、聊天流式输出与授权弹窗在短屏和 1.3 倍字体下可点可滚动；旋转、切页不丢正在执行的任务，通知可回到任务。
+
+### 没有发布签名时：并存安装（已授权）
+
+E7E3 发布密钥由上游持有，fork 侧拿不到，因此覆盖安装拿不到同签名包。经用户明确重新授权（2026-09-26），本轮的**功能可用性验收**可以用隔离包名的并存安装；**发布交付仍必须用同签名正式 Release 覆盖安装**。
+
+```sh
+# Windows: set DSHA_ENABLE_PARALLEL_INSTALL=1 后再执行 gradlew.bat
+DSHA_ENABLE_PARALLEL_INSTALL=1 bash build.sh :app:assembleLowRelease -I tools/parallel-install.init.gradle
+```
+
+产物包名为 `com.dsh.client.verify`，与正式包并存，未配置 `DSHA_KEYSTORE` 时用本机 debug keystore 签名。判读时记住三条限制：桥端口 3090 与 web 端口 3080 是固定端口，隔离包与正式包不能同时对外服务，跑桥验收前先停掉正式包环境；隔离包要自建一份 Ubuntu 环境（2–3 GB）；包内写死 `com.dsh.client` 的几处（ADB 保活授权、设备策略豁免）只对正式包生效。
 
 参考：[官方安装说明](https://code.claude.com/docs/en/setup)、[Agent SDK](https://platform.claude.com/docs/en/agent-sdk/overview)、[MCP 配置](https://code.claude.com/docs/en/mcp)。

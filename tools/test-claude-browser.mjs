@@ -5,17 +5,23 @@ import {spawnSync} from 'node:child_process';
 const require = createRequire(import.meta.url);
 const {loginUrl, openLogin} = require('../app/src/main/assets/claude/browser.cjs');
 const auth = 'https://claude.ai/oauth/authorize?response_type=code&state=test-state&code_challenge=test-challenge&redirect_uri=http%3A%2F%2Flocalhost%3A1234%2Fcallback';
+// 锁定版本的官方 CLI 实际使用 claude.com/cai/oauth/authorize（结构见 tools/check-claude-login.mjs）。
+const cai = auth.replace('claude.ai/oauth/authorize', 'claude.com/cai/oauth/authorize');
 
 test('官方授权链接保留查询参数与本机回调，不自行交换授权码', () => {
-  for (const host of ['claude.ai', 'console.anthropic.com', 'platform.claude.com']) {
-    const input = auth.replace('claude.ai', host); assert.equal(loginUrl(input), input);
+  for (const input of [auth, cai,
+    auth.replace('claude.ai', 'console.anthropic.com'), auth.replace('claude.ai', 'platform.claude.com')]) {
+    assert.equal(loginUrl(input), input);
   }
 });
 test('自动跳转拒绝非登录链接、伪装域名与不安全协议', () => {
   for (const input of [auth.replace('https:', 'http:'), auth.replace('claude.ai', 'claude.ai.evil.test'),
     auth.replace('claude.ai', 'user@claude.ai'), auth.replace('claude.ai', 'claude.ai:8443'),
     auth.replace('/oauth/authorize', '/redirect'), auth.replace('state=', 'other='),
-    auth.replace('code_challenge=', 'other='), auth + '#fragment', auth + '\n', 'intent://login', 'x'.repeat(9000)]) {
+    auth.replace('code_challenge=', 'other='), auth + '#fragment', auth + '\n', 'intent://login', 'x'.repeat(9000),
+    // 新增的路径判据不能放宽成同主机下的任意路径
+    cai.replace('/cai/oauth/authorize', '/cai/redirect'), cai.replace('claude.com', 'claude.com.evil.test'),
+    cai.replace('claude.com/cai/oauth/authorize', 'claude.com/cai/oauth/authorize/extra')]) {
     assert.throws(() => loginUrl(input));
   }
 });

@@ -38,11 +38,10 @@ public final class ClaudeActivity extends AppCompatActivity {
         session = ClaudeSession.get(this);
         page = new CardPage(this, "Claude Code", t("在手机上与 Claude 对话、编程。首次使用请在「更多」中安装并登录。"));
         UiNavigation.addHeader(this, page.root, "Claude Code", this::finish);
-        LinearLayout controls = new LinearLayout(this);
-        controls.setPadding(page.dp(18), 0, page.dp(18), 0);
-        rowButton(controls, t("更多"), false, this::more);
-        rowButton(controls, t("最新消息"), false, () -> { followOutput = true; scrollToLatest(); });
-        page.root.addView(controls, page.root.indexOfChild(page.scroll));
+        LinearLayout header = (LinearLayout) page.root.getChildAt(0);
+        header.getChildAt(1).setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1));
+        Button more = page.button(header, t("更多"), false, this::more);
+        more.setLayoutParams(new LinearLayout.LayoutParams(-2, -2));
         status = page.text("", 12, R.color.text_secondary); page.content.addView(status);
         transcript = page.text("", 15, R.color.text); transcript.setTextIsSelectable(true);
         transcript.setPadding(0, page.dp(12), 0, page.dp(12)); page.content.addView(transcript);
@@ -50,7 +49,9 @@ public final class ClaudeActivity extends AppCompatActivity {
         prompt = new EditText(this); prompt.setHint(t("发送给 Claude…"));
         prompt.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         prompt.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-        prompt.setMinLines(1); prompt.setMaxLines(4); prompt.setTextColor(getColor(R.color.text));
+        prompt.setMinLines(1);
+        prompt.setMaxLines(getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE ? 2 : 4);
+        prompt.setTextColor(getColor(R.color.text));
         prompt.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(32000)});
         page.footer.addView(prompt);
         LinearLayout actions = new LinearLayout(this); page.footer.addView(actions);
@@ -58,6 +59,10 @@ public final class ClaudeActivity extends AppCompatActivity {
             if (session.send(prompt.getText().toString())) { prompt.setText(""); followOutput = true; scrollToLatest(); }
         });
         stop = rowButton(actions, t("停止"), false, session::stop);
+        Button latest = rowButton(actions, "↓", false, () -> { followOutput = true; scrollToLatest(); });
+        latest.setContentDescription(t("最新消息")); latest.setTooltipText(t("最新消息"));
+        LinearLayout.LayoutParams latestSize = (LinearLayout.LayoutParams) latest.getLayoutParams();
+        latestSize.width = page.dp(48); latestSize.weight = 0; latest.setLayoutParams(latestSize);
         page.scroll.setOnScrollChangeListener((View v, int x, int y, int oldX, int oldY) -> {
             followOutput = page.content.getHeight() - y - page.scroll.getHeight() <= page.dp(48);
         });

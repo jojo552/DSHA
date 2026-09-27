@@ -26,7 +26,12 @@ try {
     if (!url && child.exitCode !== null) throw Error('官方 CLI 未调用 BROWSER 即退出');
     if (!url) await delay(100);
   }
-  assert.ok(url, '官方 CLI 在 45 秒内未调用 BROWSER'); loginUrl(url);
+  assert.ok(url, '官方 CLI 在 45 秒内未调用 BROWSER');
+  // 只输出公开的地址结构，排除 state、挑战值、授权码和完整查询串。
+  const structure = new URL(url);
+  console.log('官方登录入口结构:', JSON.stringify({origin: structure.origin, path: structure.pathname,
+    parameters: [...structure.searchParams.keys()].sort()}));
+  loginUrl(url);
   console.log('官方 CLI 登录已调用 BROWSER，授权地址通过校验；未提交账号授权。');
 } finally {
   if (child?.pid) {

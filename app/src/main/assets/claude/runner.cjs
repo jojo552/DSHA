@@ -4,7 +4,7 @@ const {pathToFileURL} = require('node:url');
 const crypto = require('node:crypto');
 const RUNTIME = '/root/.local/share/dsha-claude/current';
 const MCP = '/root/dsha-computer-use-android/lib/server.cjs';
-const GUIDANCE = '你运行在 Android 上的 DSHA Ubuntu 环境中。手机操作先调用 android_capabilities，读取页面后再操作并验证。Android 6 优先使用 android_click_text 和 android_scroll。能力不可用时如实说明，不重复执行结果未知的操作。';
+const GUIDANCE = '用户正在 Android 手机上的 DSHA 中与你对话和编程，你的工作环境是 Ubuntu。普通聊天和编程不需要手机无障碍授权。仅当用户明确要求操作手机时使用可选的 Android 工具：先调用 android_capabilities，读取页面后再操作并验证。能力不可用时如实说明，不重复执行结果未知的操作。';
 
 class AgentBridge {
   constructor(query, send) {

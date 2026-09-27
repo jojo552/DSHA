@@ -1,35 +1,40 @@
-# Claude Code 与手机操作
+# 在 Android 手机上使用 Claude Code
 
-本功能在 `jojo552/DSHA` 的 `feat/claude-code-android6` 分支实现。启动页新增独立的 Claude Code 入口；原有 DSH 入口继续可用。聊天使用原生 Android 控件，不依赖系统 WebView 的 JavaScript 版本。
+本功能在 `jojo552/DSHA` 的 `feat/claude-code-android6` 分支实现（沿用原 PR 分支名）。当前最低支持 **Android 10 / API 29 / ARM64**，standard 版仍要求 Android 11+。启动页的 Claude Code 使用原生 Android 控件；原有 DSH 和手机控制功能均保留。
 
 ## 使用
 
-1. 在 DSHA 中完成 Ubuntu 环境安装。Android 6–10 使用 **low 兼容版**，Android 11+ 可以使用 standard；两版都只支持 ARM64。
-2. 打开启动页的 **Claude Code**，点 **安装 Claude Code**。该可选组件需要联网下载，失败会保留当前可用版本与安装现场。
-3. 选择一种鉴权方式：在 **连接配置** 中保存 Anthropic API Key，或打开 **登录 / 完整终端 → 登录 Claude 账号**，按官方 CLI 给出的链接完成登录。API Key 加密保存在 Android Keystore 保护的配置中，通过子进程 stdin 传递，不拼入 shell 命令。
-4. 回到原生页面发送消息。可以选择模型和自定义 HTTPS API 地址；留空使用默认设置。HTTP 仅允许本机回环地址。自建服务必须兼容 Claude Code 所用的 Anthropic API。
-5. 首次操作手机，点 **手机操作授权** 打开系统无障碍设置并启用 DSHA。Claude 会先查询设备能力，再读取页面与执行操作；每次手机操作会请求原生确认。
+1. 完成 DSHA 的 Ubuntu 环境安装。Android 10 使用 **low 兼容版**，Android 11+ 可选择 standard。
+2. 进入 **Claude Code → 更多 → 安装 Claude Code**。该可选组件需要联网，失败保留原可用版本与安装现场。
+3. 在 **更多 → 登录 Claude 账号** 发起登录，自动打开手机浏览器中的官方授权页，由你完成登录和授权。也可在 **更多 → 连接配置** 保存 API Key、模型及 API 地址；密钥使用 Android Keystore 加密，原生聊天通过 stdin 传入子进程。
+4. 回到聊天页输入并发送消息。无需开启无障碍。发送与停止分别显示；任务进行中可先编写下一条草稿。
 
-原生聊天支持流式文字、工具提示、允许/拒绝、Claude 的提问、取消和续聊。旋转或离开页面保留正在执行的任务，可从通知返回或停止；进程被系统回收后不自动重放请求。**新对话**重置当前页面及续聊编号，官方 CLI 保存的会话文件继续保留。
+Claude 提问时可以直接点选单选或多选答案，也可以自行填写。点选与自定义回答互斥，提交前检查每题都有答案；旋转会保留当前提问的选择、输入草稿和阅读位置。上滑阅读历史时不会被新输出拉回底部，点 **最新消息** 恢复跟随。横屏键盘避免全屏编辑模式。
 
-完整终端用于官方交互式 CLI 与登录，复用现有 PTY、软键盘和终端标签。它使用官方 CLI 自身的账号/配置；原生页面填写的 API Key、模型和 API 地址仅传给原生聊天。若登录时没有自动打开浏览器，可复制终端中的链接到浏览器完成验证。
+**更多** 中保留连接配置、账号登录、完整终端、新对话和可选的手机控制授权。新对话只重置当前页面和续聊编号，官方 CLI 会话文件继续保留。旋转或切页不会结束任务，可从通知返回或停止；进程被系统回收后不自动重放请求。
 
-## Android 能力矩阵
+## 登录授权自动跳转
 
-以下为本次 MCP 接入的无障碍通道，不代表 Android 版本和授权到位后所有应用都一定暴露控件。
+登录入口为这一轮官方 `claude auth login` 设置专用 `BROWSER`，通过现有带 token 的本机桥请求 Android 打开浏览器。只接受官方 HTTPS OAuth 授权地址；不自动确认账号授权，不保存授权码，不记录完整 URL。授权 state、PKCE 和本机回调仍由官方 CLI 管理。
 
-| 操作 | Android 6 / API 23 | Android 7–10 / API 24–29 | Android 11+ / API 30+ |
-|---|---|---|---|
-| 能力查询 | 支持 | 支持 | 支持 |
-| 读取文字与控件树 | 支持 | 支持 | 支持 |
-| 按文字点击、输入、返回/主页 | 支持 | 支持 | 支持 |
-| 对可滚动控件翻页 | 支持 | 支持 | 支持 |
-| 坐标点击、滑动手势 | 不支持，使用节点操作 | 支持 | 支持 |
-| 无障碍截图 | 不支持 | 不支持 | 支持，受保护窗口除外 |
+浏览器授权完成后回到 DSHA 查看 CLI 的登录结果。若官方流程给出登录码，请粘贴到终端提示处；自动打开失败时，终端中的原始链接和输入通道仍可用。**打开浏览器不等于登录成功**。参见[官方登录说明](https://code.claude.com/docs/en/authentication)。
 
-未连接无障碍服务时，能力查询会把相关动作标为不可用。Android 6 不会把“手势不支持”误报为成功。无控件树的游戏、画布或特殊应用仍可能无法操作。该接入没有增加 Root/ADB 截图或手势回退，也不自动切换通道重放操作。
+完整终端复用现有 PTY、软键盘和终端标签，并使用 CLI 自身账号/配置；原生页面填写的 API Key、模型及 API 地址只传给原生聊天。普通完整终端不会自动打开其中出现的任意链接。
 
-Android 6+ 是 APK 和原生功能的兼容目标。Claude Code 在 Ubuntu ARM64 内运行，仍受手机内核、内存和 proot 兼容性影响。验收口径已收敛到 **Android 10 及以下**（low 兼容版），Android 6/7 真机不作为前置条件；**在真机安装本次构建并完成一次真实鉴权前，仍不能把代码检查视为已证明完整运行**。
+## 可选手机控制
+
+聊天和编程不要求开启此功能。如果希望 Claude 帮你操作其他应用，可从 **更多 → 可选：手机控制授权** 启用原有无障碍服务；逐次操作仍有原生确认，MCP 的 9 个工具全部保留。
+
+| 操作 | Android 10 / API 29 | Android 11+ / API 30+ |
+|---|---|---|
+| 查询能力 | 支持 | 支持 |
+| 读取控件、文字点击、输入、导航、控件滚动 | 授权后支持 | 授权后支持 |
+| 坐标点击与滑动 | 授权后支持 | 授权后支持 |
+| 无障碍截图 | 不支持 | 授权后支持，受保护窗口除外 |
+
+未连接无障碍服务时，相关能力明确报为不可用。无控件树的画布、游戏等应用仍可能无法操作。现有 Root、Shizuku、ADB 功能保留，本轮没有增加自动切换通道重放操作。
+
+最低系统版本是 APK 的安装门槛；Claude 在 Ubuntu ARM64 内的运行仍取决于手机内核、内存与 proot 兼容性。
 
 ## 实现与数据
 
@@ -46,28 +51,37 @@ Claude Code 组件按用户点击安装时从 npm 下载，其使用与授权遵
 
 ```sh
 node tools/test-claude-agent.mjs
+node tools/test-claude-browser.mjs
 node tools/test-android-computer-use.mjs
 python3 tools/test-bridge-routes.py
 bash -n app/src/main/assets/claude/install.sh
 ./gradlew :app:testStandardDebugUnitTest :app:testLowDebugUnitTest -x prepareStandardAssets
 ```
 
-SDK 测试使用模拟的官方查询接口，覆盖流式输出、续聊、并行授权、拒绝、提问、取消、错误和有界协议输入；手机 MCP 测试验证发现、参数、取消与错误识别，不发送真实设备操作。Java 测试覆盖 API 23/24/29/30 能力差异和协议边界。
+SDK 测试使用模拟的官方查询接口，覆盖流式输出、续聊、并行授权、拒绝、提问、取消、错误和有界协议输入；手机 MCP 测试验证发现、参数、取消与错误识别，不发送真实设备操作。Java 测试覆盖能力差异、协议边界、单选/多选、自定义答案与草稿恢复。浏览器测试覆盖链接白名单、桥鉴权、错误和敏感信息保护。CI 安装锁定 CLI 后运行 `node tools/check-claude-login.mjs`，在临时空配置中验证真实 BROWSER 调用，不提交账号授权。
+
+2026-09-27 本机结果：两版各 630 项单测，629 通过、1 项 POSIX 环境条件跳过、0 失败；两版 Java 编译通过，low 合并 Manifest 的 minSdk 为 29。新增 5 项浏览器测试、SDK/MCP 协议和 6 项桥路由测试通过，中英文文案字典生成成功。官方 CLI 的真实 BROWSER 调用由 CI 单独验证。
 
 2026-09-26 结果：以上检查全部通过。GitHub 工作流 [Claude 与 Android 兼容检查 run 36238981382](https://github.com/jojo552/DSHA/actions/runs/36238981382) 在标准 Linux Android 工具链上完成官方 CLI 安装与 SDK 入口检查，并编译两版执行单元测试 —— 两版各 625 项（合计 1250 项），0 失败、0 跳过。本地同一组 node/python/语法检查通过；本地两版单测 624 项通过、1 项因 POSIX 环境条件跳过。
 
-GitHub 工作流 `Claude 与 Android 兼容检查` 使用标准 Linux Android 工具链编译两版并执行单元测试。`-x prepareStandardAssets` 仅跳过离线 Ubuntu 包生成，这条验证命令不交付可安装 APK。真机布局、真实登录/计费请求、后台保活及非调试 APK 的进程回收仍需设备验收：Android 10 设备上已安装的 `0.1.7-alpha2low` 尚不含本次新增的 `/app/ui/capabilities` 与 `/app/ui/scroll`，需安装本次构建后复验。
+GitHub 工作流 `Claude 与 Android 兼容检查` 使用标准 Linux Android 工具链编译两版并执行单元测试。`-x prepareStandardAssets` 仅跳过离线 Ubuntu 包生成，这条验证命令不交付可安装 APK。本轮手机界面、浏览器跳转、真实账号授权/模型请求、后台保活及非调试 APK 进程回收仍需真机验收。上一轮手机桥的已测范围见下方历史结果。
 
-## 真机验收（Android 10 及以下）
+## 当前手机使用验收（Android 10+）
 
-已发布的 `0.1.7-alpha2low` 没有本次新增的桥端点，所以本节要在**安装本次构建的 low 兼容版**之后执行。覆盖安装必须用发布用的那把 keystore（`DSHA_KEYSTORE`）：Android 只允许同签名覆盖安装，换密钥就只能卸载重装，会丢掉已有环境与数据。
+在短屏、横屏、日夜主题、中英文和 1.3 倍字体下，检查聊天、菜单与提问可点可滚动；键盘弹出后仍能发送/停止。连续输出时上滑阅读应保留位置，点最新消息回底。回答一部分问题后旋转应保留选择与草稿，新一轮提问不应带入上一题答案。点击登录应打开手机浏览器，取消授权后可返回终端；登录成功后再验证一次真实聊天。
+
+布局统一性可运行 `LayoutAuditInstrumentation` 的 `style` 验收；自动化编译不能替代真机结果。
+
+## 可选手机控制验收（保留原测试入口）
+
+本节用于可选手机控制，与 Claude 聊天的必需步骤无关。请在**安装对应 PR 构建的 low 兼容版**之后执行。覆盖安装必须用发布用的那把 keystore（`DSHA_KEYSTORE`）：Android 只允许同签名覆盖安装，换密钥就只能卸载重装，会丢掉已有环境与数据。
 
 执行方式：`node tools/accept-android-device.mjs`（在手机容器内跑，`--static` 只做不需要确认的项，`--gesture` 加验坐标手势）。手机旁要有人，每次手机操作都会弹原生确认。
 
 1. **能力查询**：`/app/ui/capabilities` 在 API 29 上应报 `android_get_state`、`android_click_text`、`android_type`、`android_key`、`android_scroll`、`android_click`、`android_swipe` 为 true，`android_screenshot` 为 false，guidance 提示该通道不支持截图。未连接无障碍服务时同一查询必须把这些动作标为不可用，不能把系统版本支持报成已授权。
-2. **文字点击**（Android 6 起可用）：`/app/ui/tap?text=<界面上的文字>` 应命中控件并弹原生确认；拒绝时返回 `[ERR] 你拒绝了这次点击`。
+2. **文字点击**：`/app/ui/tap?text=<界面上的文字>` 应命中控件并弹原生确认；拒绝时返回 `[ERR] 你拒绝了这次点击`。
 3. **控件滚动**：`/app/ui/scroll?direction=forward` 返回 `OK 已请求滚动，请重新读屏确认` 或 `[ERR] 当前页面没有可滚动控件`；`direction=left` 必须返回 `[ERR] 无效的滚动方向`，不能当成成功。
-4. **坐标手势**：API 24 及以上的坐标点击与滑动可用；API 23 必须返回 `[ERR] 手势点按需 Android 7+；Android 6 请使用文字点击` / `[ERR] 手势滑动需 Android 7+；Android 6 请使用控件滚动`，不能静默失败或自动改成别的通道重放。
+4. **坐标手势**：Android 10+ 的坐标点击与滑动应在授权后可用；拒绝或未连接时不能静默报告成功，也不能自动切换通道重放。旧 API 的兼容分支保留为回归测试。
 5. **MCP 发现**：`tools/list` 应返回 9 个工具（新增 `android_capabilities`、`android_click_text`、`android_scroll`）；参数不合法时按协议返回错误码，不发送设备操作。
 6. **界面**：启动页 Claude Code 入口、连接配置、聊天流式输出与授权弹窗在短屏和 1.3 倍字体下可点可滚动；旋转、切页不丢正在执行的任务，通知可回到任务。
 

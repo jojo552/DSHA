@@ -162,14 +162,15 @@ public final class PtyTerminalFragment extends Fragment
             PtySession ns;
             if (getArguments() != null && getArguments().getBoolean("claude_terminal", false)) {
                 String command = "/root/.local/share/dsha-claude/current/node_modules/.bin/claude";
-                if (getArguments().getBoolean("claude_login", false)) command += " auth login";
+                if (getArguments().getBoolean("claude_login", false))
+                    command = "BROWSER=/usr/local/share/dsha/claude/browser.cjs " + command + " auth login";
                 else command += " --mcp-config " + com.deepseekharness.app.util.ShellQuote.arg(
                         "{\"mcpServers\":{\"dsha-android\":{\"command\":\"/usr/local/bin/node\",\"args\":[\"/root/dsha-computer-use-android/lib/server.cjs\"]}}}");
+                if (com.deepseekharness.app.HttpShellService.instance() == null)
+                    new com.deepseekharness.app.HttpShellService(requireContext().getApplicationContext()).start();
                 ns = PtySession.start(c.proot(), 80, 24, null, "/bin/bash", "-lc",
                         "stty sane 2>/dev/null || true; " + command + "; exec /bin/bash -l");
                 com.deepseekharness.app.core.ClaudeSession.registerTerminal(ns);
-                if (com.deepseekharness.app.HttpShellService.instance() == null)
-                    new com.deepseekharness.app.HttpShellService(requireContext().getApplicationContext()).start();
             } else ns = PtySession.start(c.proot(), 80, 24, null);
             sessions.add(ns);
             attachSelected();

@@ -25004,5 +25004,77 @@
     "files": [
       "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
     ]
+  },
+  {
+    "id": "claude_mobile_0",
+    "zh": "在手机上与 Claude 对话、编程。首次使用请在「更多」中安装并登录。",
+    "en": "Chat and code with Claude on your phone. To get started, install and sign in from More.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_2",
+    "zh": "最新消息",
+    "en": "Latest messages",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_3",
+    "zh": "可选：手机控制授权",
+    "en": "Optional: phone control access",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_4",
+    "zh": "请先停止当前任务",
+    "en": "Stop the current task first",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_5",
+    "zh": "可选择多项，也可以自行填写",
+    "en": "Choose multiple options or enter your own answer",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_6",
+    "zh": "点选一项，也可以自行填写",
+    "en": "Choose one option or enter your own answer",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_7",
+    "zh": "其他答案（选填）",
+    "en": "Your own answer (optional)",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_8",
+    "zh": "请选择或填写答案",
+    "en": "Select an option or enter an answer",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
   }
 ]

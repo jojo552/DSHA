@@ -13,7 +13,7 @@ paths.extend(assets/name for name in ['plugin-manager-policy-patch.json','plugin
 paths.append(assets/'office-fonts-patch.json')
 paths.extend(assets/name for name in ['deepseek-messages-compat-patch.json','dsha-deepseek-messages-compat.js'])
 paths.extend(assets/name for name in ['runtime-trial-plugin.js','runtime-trial-page.js'])
-for folder in ['web-integration','app-integration']:
+for folder in ['web-integration','app-integration','claude']:
  paths.extend(p for p in (assets/folder).rglob('*') if p.is_file())
 for folder in (assets/'builtin-plugins').iterdir():
  if not folder.is_dir():continue

@@ -24731,5 +24731,350 @@
     "files": [
       "app/src/main/java/com/deepseekharness/app/ui/BackgroundTasksActivity.java"
     ]
+  },
+  {
+    "id": "claude_3063",
+    "zh": "在手机上编程和操作应用。首次使用请安装并配置登录。",
+    "en": "Code and use apps on your phone. Install and sign in before first use.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3064",
+    "zh": "安装 Claude Code",
+    "en": "Install Claude Code",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3065",
+    "zh": "连接配置",
+    "en": "Connection settings",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3066",
+    "zh": "登录 / 完整终端",
+    "en": "Sign in / Full terminal",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3067",
+    "zh": "新对话",
+    "en": "New conversation",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3068",
+    "zh": "手机操作授权",
+    "en": "Device permissions",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3069",
+    "zh": "发送给 Claude…",
+    "en": "Message Claude…",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3070",
+    "zh": "发送",
+    "en": "Send",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3071",
+    "zh": "Claude 等待你的答复",
+    "en": "Claude needs your response",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3072",
+    "zh": "填写答案，可用逗号分隔多项",
+    "en": "Enter your answer; separate multiple choices with commas",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3073",
+    "zh": "允许 / 提交答复",
+    "en": "Allow / Submit",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3074",
+    "zh": "请填写答案",
+    "en": "Enter an answer",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3075",
+    "zh": "Claude 终端",
+    "en": "Claude terminal",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3076",
+    "zh": "登录 Claude 账号",
+    "en": "Sign in to Claude",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3077",
+    "zh": "打开完整 Claude Code",
+    "en": "Open full Claude Code",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3078",
+    "zh": "模型（留空使用默认值）",
+    "en": "Model (blank uses default)",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3079",
+    "zh": "API 地址（留空使用官方服务）",
+    "en": "API URL (blank uses official service)",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3080",
+    "zh": "API Key（留空保留；账号登录无需填写）",
+    "en": "API key (blank keeps saved key; optional with account login)",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3081",
+    "zh": "清除已保存的 API Key，使用账号登录",
+    "en": "Clear saved API key and use account login",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3082",
+    "zh": "Claude 连接配置",
+    "en": "Claude connection settings",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3083",
+    "zh": "请填写 HTTPS 地址或本机 HTTP 地址",
+    "en": "Use HTTPS or a local HTTP URL",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3084",
+    "zh": "密钥保存失败，原配置已保留",
+    "en": "Key could not be saved; previous settings were kept",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java"
+    ]
+  },
+  {
+    "id": "claude_3085",
+    "zh": "Claude 凭据无法解密，请重新保存配置",
+    "en": "Could not decrypt Claude credentials. Save the settings again.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3086",
+    "zh": "正在安装 Claude Code…",
+    "en": "Installing Claude Code…",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3087",
+    "zh": "Claude 正在处理…",
+    "en": "Claude is working…",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3088",
+    "zh": "未确认进程退出，保留环境保护；请重试停止",
+    "en": "Process exit is not confirmed. Environment protection remains active; try stopping again.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3089",
+    "zh": "已停止；可发送消息继续会话",
+    "en": "Stopped. Send a message to continue the conversation.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3090",
+    "zh": "安装完成，请配置密钥或登录",
+    "en": "Installed. Configure an API key or sign in.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3091",
+    "zh": "本轮已结束",
+    "en": "This turn has ended.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3092",
+    "zh": "Claude 单条输出过大",
+    "en": "A Claude output message exceeded the size limit.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3093",
+    "zh": "Claude 进程退出码 %s，请查看上方输出",
+    "en": "Claude exited with code %s. See the output above.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ],
+    "uiFormat": true
+  },
+  {
+    "id": "claude_3094",
+    "zh": "等待你的答复",
+    "en": "Waiting for your response",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3095",
+    "zh": "会话已停止",
+    "en": "The session has stopped.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_3096",
+    "zh": "尚未确认 Claude 子进程退出，环境仍受保护",
+    "en": "Claude child-process exit is not confirmed. The environment remains protected.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/core/ClaudeSession.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_0",
+    "zh": "在手机上与 Claude 对话、编程。首次使用请在「更多」中安装并登录。",
+    "en": "Chat and code with Claude on your phone. To get started, install and sign in from More.",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_2",
+    "zh": "最新消息",
+    "en": "Latest messages",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_3",
+    "zh": "可选：手机控制授权",
+    "en": "Optional: phone control access",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_4",
+    "zh": "请先停止当前任务",
+    "en": "Stop the current task first",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_5",
+    "zh": "可选择多项，也可以自行填写",
+    "en": "Choose multiple options or enter your own answer",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_6",
+    "zh": "点选一项，也可以自行填写",
+    "en": "Choose one option or enter your own answer",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_7",
+    "zh": "其他答案（选填）",
+    "en": "Your own answer (optional)",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
+  },
+  {
+    "id": "claude_mobile_8",
+    "zh": "请选择或填写答案",
+    "en": "Select an option or enter an answer",
+    "files": [
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeActivity.java",
+      "app/src/main/java/com/deepseekharness/app/ui/ClaudeQuestionInput.java"
+    ]
   }
 ]

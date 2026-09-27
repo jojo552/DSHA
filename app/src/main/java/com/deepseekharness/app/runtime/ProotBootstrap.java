@@ -1120,6 +1120,14 @@ public class ProotBootstrap {
         }
     }
 
+    /** Claude 使用独立监督进程和稳定 proot；stdin 保留给 SDK 授权协议。 */
+    public Process execClaude(String command) throws IOException {
+        requireUserRuntime();
+        ensureRuntimeFiles();
+        ensureNetworkTools();
+        return startRootfs(command, new ContainerRuntime.Proot(ctx, findNativeLib("libproot.so")), false, true);
+    }
+
     /** PTY 会话的 argv：与 execRootfs 共用同一份 proot 构造逻辑（见 AGENTS.md 单源约束）。 */
     public String[] ptyArgv(String... guestCmd) {
         try { requireUserRuntime(); } catch (IOException error) { throw new IllegalStateException(error.getMessage(), error); }

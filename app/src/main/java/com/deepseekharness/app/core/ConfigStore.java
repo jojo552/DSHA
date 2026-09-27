@@ -78,6 +78,24 @@ public class ConfigStore {
 
     // ================= 接入 =================
 
+    public String getClaudeModel() { return text("claude_model", ""); }
+    public String getClaudeBaseUrl() { return text("claude_base_url", ""); }
+    public String getClaudeSession() { return text("claude_session", ""); }
+    public String getClaudeTranscript() { return text("claude_transcript", ""); }
+    public String getClaudeApiKey() { return vault.read(text("claude_api_key", "")).requireValue(); }
+    public void saveClaudeConversation(String session, String transcript) {
+        prefs.edit().putString("claude_session", session).putString("claude_transcript", transcript).apply();
+    }
+    /** 空 key 表示保留已存凭据；清除凭据必须由调用方显式指定。 */
+    public boolean saveClaudeSettings(String model, String baseUrl, String key, boolean clearKey) {
+        String encrypted = key.isEmpty() ? "" : vault.encrypt(key);
+        if (!key.isEmpty() && (encrypted.isEmpty() || !key.equals(vault.read(encrypted).requireValue()))) return false;
+        SharedPreferences.Editor editor = prefs.edit().putString("claude_model", model).putString("claude_base_url", baseUrl);
+        if (clearKey) editor.remove("claude_api_key");
+        else if (!key.isEmpty()) editor.putString("claude_api_key", encrypted);
+        return editor.commit();
+    }
+
     public String getDnsMode() { return com.deepseekharness.app.util.ResolverConfig.mode(text("dns_mode", "auto")); }
     public void setDnsMode(String value) { prefs.edit().putString("dns_mode",com.deepseekharness.app.util.ResolverConfig.mode(value)).apply(); }
 

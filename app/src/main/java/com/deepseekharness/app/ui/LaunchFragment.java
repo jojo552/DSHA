@@ -79,6 +79,7 @@ public class LaunchFragment extends Fragment {
         v.findViewById(R.id.launch_download_logs).setOnClickListener(x -> startActivity(DiagnosticActivity.downloadLogs(requireContext())));
 
         v.findViewById(R.id.launch_models).setOnClickListener(x->startActivity(new Intent(requireContext(),ModelSetupActivity.class)));
+        v.findViewById(R.id.launch_claude).setOnClickListener(x -> startActivity(new Intent(requireContext(), ClaudeActivity.class)));
         v.findViewById(R.id.launch_address).setOnClickListener(x->{
             String local=controller.getWebAuthUrl();
             String addresses=local.isEmpty()?com.deepseekharness.app.util.UiText.choose("启动后可查看访问地址。","Start DSH to view access addresses."):local;

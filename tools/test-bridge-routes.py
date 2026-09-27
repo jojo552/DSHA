@@ -19,8 +19,8 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = ROOT / 'app/src/main/java/com/deepseekharness/app/HttpShellService.java'
 
-# 唯一允许保留前缀的组：它是一个端点命名空间，真子路径在 appUi 内再精确分发。
-ALLOWED_PREFIXES = ('/app/ui/',)
+# 命名空间内再分发固定子端点；虚拟屏命名空间已存在于本次改动的基线。
+ALLOWED_PREFIXES = ('/app/ui/', '/app/vscreen/')
 # 凭据敏感端点：必须精确匹配。
 SENSITIVE = ('/app/readfile', '/app/export', '/app/share')
 
@@ -67,7 +67,7 @@ class RouteDispatch(unittest.TestCase):
         # 命中截屏，而截屏会把当前画面留到磁盘。
         self.assertIn('String r = path.split("\\\\?", 2)[0];', self.src)
         for sub in ('/app/ui/dump', '/app/ui/tap', '/app/ui/input', '/app/ui/key',
-                    '/app/ui/swipe'):
+                    '/app/ui/swipe', '/app/ui/capabilities', '/app/ui/scroll'):
             self.assertIn(f'r.equals("{sub}")', self.src, f'appUi 里 {sub} 不是精确匹配')
         self.assertIn('r.equals("/app/ui/screenshot") || r.equals("/app/ui/shot")', self.src)
         for m in re.finditer(r'path\.startsWith\("/app/ui', self.src):

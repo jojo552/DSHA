@@ -739,20 +739,26 @@ public final class HttpShellService {
     /** @param action 给用户看的具体动作描述 —— 弹窗必须说清 AI 要干什么，
      *               而不是笼统一句「操作屏幕」，否则用户等于盲签。 */
     private boolean uiAuthorized(String action) {
+        long claudeSession = com.deepseekharness.app.core.ClaudeSession.phoneSession();
         String pkg = DshaAccessibilityService.currentPackage();
         boolean sensitive = isSensitiveApp(pkg);
         var controller = com.deepseekharness.app.core.HarnessController.get(ctx);
         long generation = controller.getWebGeneration(), revision = uiGrant.revision();
-        if (!sensitive && hasScreenGrant(ctx)) {
+        if (claudeSession == 0 && !sensitive && hasScreenGrant(ctx)) {
             return true;
         }
         String where = pkg.isEmpty() ? com.deepseekharness.app.util.UiText.text("当前界面") : pkg;
         String why = sensitive
                 ? com.deepseekharness.app.util.UiText.text("在【") + where + com.deepseekharness.app.util.UiText.text("】里：") + action
                 + com.deepseekharness.app.util.UiText.text("  # 这类应用涉及支付或隐私，每次都需要你确认")
-                : action + com.deepseekharness.app.util.UiText.choose("  # 本次 DSH 运行期间有效，可在设备能力授权中随时撤销", "  # Valid for this DSH run. Revoke anytime in Device permissions");
+                : action + (claudeSession > 0
+                    ? com.deepseekharness.app.util.UiText.choose("  # 仅允许 Claude 本次操作", "  # Allow this Claude action only")
+                    : com.deepseekharness.app.util.UiText.choose("  # 本次 DSH 运行期间有效，可在设备能力授权中随时撤销", "  # Valid for this DSH run. Revoke anytime in Device permissions"));
         boolean ok = requestUserConfirm(why);
+        if (claudeSession > 0 && claudeSession != com.deepseekharness.app.core.ClaudeSession.phoneSession()) return false;
         if (ok && !sensitive) {
+            // Claude 独立于 dsh web；仅允许本次仍存活的 Claude 请求，不缓存到 DSH 的授权代次。
+            if (claudeSession > 0 && claudeSession == com.deepseekharness.app.core.ClaudeSession.phoneSession()) return true;
             return !controller.isStopping() && !controller.isUserStopped()
                     && controller.getWebGeneration() == generation && uiGrant.accept(generation, revision);
         }
@@ -771,6 +777,15 @@ public final class HttpShellService {
         // 命中截屏，而截屏会把当前画面留到磁盘。
         String r = path.split("\\?", 2)[0];
         try {
+            if (r.equals("/app/ui/capabilities")) {
+                return com.deepseekharness.app.util.DeviceUiCapabilities.describe(Build.VERSION.SDK_INT, DshaAccessibilityService.connected()).toString();
+            }
+            if (r.equals("/app/ui/scroll")) {
+                String direction = getParam(q, "direction", "");
+                if (!"forward".equals(direction) && !"backward".equals(direction)) return "[ERR] 无效的滚动方向";
+                if (!uiAuthorized("滚动当前页面：" + direction)) return "[ERR] 你拒绝了这次滚动";
+                return DshaAccessibilityService.uiScroll(direction);
+            }
             if (r.equals("/app/ui/dump")) {
                 if (!uiAuthorized(com.deepseekharness.app.util.UiText.text("读取当前屏幕上的文字与控件"))) return com.deepseekharness.app.util.UiText.text("[ERR] 你拒绝了这次屏幕读取");
                 return DshaAccessibilityService.uiDump();
@@ -915,6 +930,7 @@ public final class HttpShellService {
             + com.deepseekharness.app.util.UiText.text("带中文/空格的参数一律用 -G --data-urlencode，别手写 URL 编码。\n")
             + "\n"
             + com.deepseekharness.app.util.UiText.text("== 屏幕操作（无障碍服务，不需要 ADB/Shizuku）==\n")
+            + com.deepseekharness.app.util.UiText.choose("能力  /app/ui/capabilities   → 查系统版本、无障碍连接与当前可用操作；手机操作前先调用\n", "Capabilities  /app/ui/capabilities   → API level, accessibility state and available actions; call before device actions\n")
             + com.deepseekharness.app.util.UiText.text("读屏  curl -s \"127.0.0.1:3090/app/ui/dump?token=$T\"\n")
             + com.deepseekharness.app.util.UiText.text("      → 每行「[序号] \"文字\" 可点击 中心=(x,y) 区域=l,t,r,b」\n")
             + com.deepseekharness.app.util.UiText.text("点按  curl -s -G 127.0.0.1:3090/app/ui/tap --data-urlencode \"text=设置\" --data-urlencode \"token=$T\"\n")
@@ -922,8 +938,9 @@ public final class HttpShellService {
             + com.deepseekharness.app.util.UiText.text("输入  curl -s -G 127.0.0.1:3090/app/ui/input --data-urlencode \"text=内容\" --data-urlencode \"token=$T\"\n")
             + com.deepseekharness.app.util.UiText.text("      → 填到当前焦点框；没有焦点先 tap 一下输入框\n")
             + com.deepseekharness.app.util.UiText.text("按键  /app/ui/key?name=back  （back/home/recents/notifications/quicksettings/lock）\n")
+            + com.deepseekharness.app.util.UiText.choose("滚动  /app/ui/scroll?direction=forward|backward   → 按控件翻页，Android 6 也能用（坐标手势需 Android 7+）\n", "Scroll  /app/ui/scroll?direction=forward|backward   → scroll a scrollable node; works on Android 6 (coordinate gestures need Android 7+)\n")
             + com.deepseekharness.app.util.UiText.text("滑动  /app/ui/swipe?x1=500&y1=1500&x2=500&y2=500&ms=300\n")
-            + com.deepseekharness.app.util.UiText.choose("截屏  /app/ui/screenshot   → 存 PNG 到应用截图目录并返回路径（不回 base64）\n", "Screenshot  /app/ui/screenshot   → save a PNG in the app's screenshot folder and return its path (not base64)\n")
+            + com.deepseekharness.app.util.UiText.choose("截屏  /app/ui/screenshot   → 存 PNG 到应用截图目录并返回路径（不回 base64；无障碍截图需 Android 11+）\n", "Screenshot  /app/ui/screenshot   → save a PNG in the app's screenshot folder and return its path (not base64; accessibility screenshot needs Android 11+)\n")
             + com.deepseekharness.app.util.UiText.text("节奏：每次点按/输入后先 dump 再决定下一步，别凭记忆连点。\n")
             + "\n"
             + com.deepseekharness.app.util.UiText.text("== 独立虚拟屏（Android 11+；每次输入必须带最新 frameSeq）==\n")

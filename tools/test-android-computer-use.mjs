@@ -4,7 +4,7 @@ import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 const server=fileURLToPath(new URL('../app/src/main/assets/builtin-plugins/dsh-computer-use-android/lib/server.cjs',import.meta.url));
 const {validate,definitions,tools,bridgeFailed,screenshotTarget}=createRequire(import.meta.url)(server);
-assert.equal(tools.length,6);
+assert.equal(tools.length,9);
 for(const base of ['/sdcard/Download/DSHA','/storage/emulated/0/Download/DSHA'])
   assert.deepEqual(screenshotTarget('OK 截屏已保存：'+base+'/screen-20260916-100000.png（1080x2400）'),{file:base+'/screen-20260916-100000.png',base});
 assert.equal(screenshotTarget('/sdcard/Download/other/screen-1.png'),null);
@@ -26,6 +26,11 @@ assert.throws(()=>validate(byName('android_click'),{x:1,y:2,shell:'id'}));
 assert.throws(()=>validate(byName('android_type'),{text:'a'.repeat(2001)}));
 assert.throws(()=>validate(byName('android_key'),{name:'factory-reset'}));
 assert.doesNotThrow(()=>validate(byName('android_get_state'),{}));
+assert.doesNotThrow(()=>validate(byName('android_click_text'),{text:'设置'}));
+assert.throws(()=>validate(byName('android_click_text'),{text:'  '}));
+assert.doesNotThrow(()=>validate(byName('android_scroll'),{direction:'forward'}));
+assert.throws(()=>validate(byName('android_scroll'),{direction:'left'}));
+assert.equal(bridgeFailed('[ERR] 手势点按需 Android 7+'),true);
 const child=spawn(process.execPath,[server],{stdio:['pipe','pipe','pipe']});
 let output='',stderr='';child.stdout.on('data',b=>output+=b);child.stderr.on('data',b=>stderr+=b);
 const requests=[{id:1,method:'initialize',params:{protocolVersion:'2025-03-26'}},{id:2,method:'tools/list'},
@@ -36,7 +41,7 @@ await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(Error('
 child.stdin.end();await new Promise(resolve=>child.on('close',resolve));
 const replies=output.trim().split('\n').map(JSON.parse);
 assert.equal(replies.find(r=>r.id===1).result.serverInfo.name,'DSHA Android Computer Use');
-assert.equal(replies.find(r=>r.id===2).result.tools.length,6);
+assert.equal(replies.find(r=>r.id===2).result.tools.length,9);
 assert.equal(replies.find(r=>r.id===3).error.code,-32800);
 assert.equal(stderr,'');
 console.log('Android Computer Use: schemas, discovery, and cancellation passed; no device command was sent.');

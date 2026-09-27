@@ -32,7 +32,7 @@ android {
         }
         low {
             dimension 'androidSupport'
-            minSdk 23
+            minSdk 29
             versionNameSuffix 'low'
             buildConfigField 'boolean', 'LOW_ANDROID', 'true'
         }
@@ -182,12 +182,12 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
     lowImplementation 'org.mozilla.geckoview:geckoview-arm64-v8a:143.0.20251003115653'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    // 1.15 保留 API 23；1.16 起要求 API 24，不能用于兼容版。
+    // 沿用已经验证的 WebKit 版本；最低系统调整不同时升级依赖。
     implementation 'androidx.webkit:webkit:1.15.0'
     implementation 'com.google.android.material:material:1.11.0'
     standardImplementation 'dev.rikka.shizuku:api:13.1.5'
     standardImplementation 'dev.rikka.shizuku:provider:13.1.5'
-    // 13.1.5 从 API 24 起可用；兼容版以 12.2.0 的相同 Binder 协议支持 Android 6。
+    // 兼容版保留已经验证的 12.2.0 Binder 协议与依赖。
     lowImplementation 'dev.rikka.shizuku:api:12.2.0'
     lowImplementation 'dev.rikka.shizuku:provider:12.2.0'
     // 真 PTY 终端：Termux 拆出的 terminal-view/terminal-emulator（Apache 2.0），

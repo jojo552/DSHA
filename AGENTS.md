@@ -12,7 +12,7 @@ Material3、单 Gradle 模块 `:app`。
 
 - **发布交付目录固定为 `F:\DSHA_RESTART\release`**（用户最新指定，即源码工作区的 release）：高安卓标准版和低安卓兼容版的 APK、对应 `.apk.sha256` 都放这里；既有历史文件保留。
 - **Java 17，无 Kotlin**，单模块 `:app`。
-- `applicationId com.dsh.client`；Java 包 `com.deepseekharness.app`；标准版 `minSdk 30`、兼容版 `minSdk 23`，
+- `applicationId com.dsh.client`；Java 包 `com.deepseekharness.app`；标准版 `minSdk 30`、兼容版 `minSdk 29`，
   `compileSdk/targetSdk 37`（SDK 平台包 `android-37.0`）、AGP 9.1.1、Gradle 9.3.1、NDK 26、**arm64-v8a only**。
 - 离线 rootfs（`assets/offline-rootfs.bin`）**不提交**，CI 生成；本地骨架默认走精简包。
 - 新 dsh 依赖由 `tools/dsh-runtime/package-lock.json` 锁定，运行 `tools/prepare-dsh-runtime.py` 生成覆盖层；构建会校验补丁与覆盖层摘要。环境身份为版本码 + Ubuntu 基础环境版本 + dsh 版本；基础版本相同则事务替换受管运行时，个人目录、会话、配置和第三方插件保持原位；基础版本不同才保护数据并重建。不要因普通 dsh 更新递增 Ubuntu 基础环境版本。
@@ -39,7 +39,7 @@ Material3、单 Gradle 模块 `:app`。
 - 安全启动使用 `dsha-recovery-<16位十六进制>` 独立 profile，只加载官方基础组件，保留原 web profile；`WebProcSel` 必须能正确停止此类 Node 进程。启动观察器适配锁定 Cordis 的真实 Entry.init，不拦截全部 Node 模块解析，不把可选依赖探测误报为故障。
 - 个人文件迁移、安全配置与配置快照的 Python 维护脚本和插件管理一样，预先选择 proot 执行；目录存在探针不能代表完整遍历/归档可用。不能在写入结果未知后自动改通道重放。Web 本身继续使用所选运行方式。
 - 离线 curl/git/证书及依赖由 `tools/ubuntu-tools/packages.lock.json` 锁定，运行 `tools/prepare-ubuntu-tools.py` 生成 `ubuntu-tools.bin`；新环境通过 dpkg 离线安装后删除安装包。生成文件不提交，不省略冷环境的完整安装检查。
-- `standard` / `low` 两个 flavor 共用功能代码与 Ubuntu Python。标准版使用系统 WebView，兼容版额外带 Gecko 143，在 Android 6/7 或旧 WebView 时使用；构建任务为 `assembleStandardRelease` / `assembleLowRelease`。
+- `standard` / `low` 两个 flavor 共用功能代码与 Ubuntu Python。标准版使用系统 WebView，兼容版额外带 Gecko 143，在 Android 10 或旧 WebView 时使用；构建任务为 `assembleStandardRelease` / `assembleLowRelease`。
 - Shizuku 必须注册 `rikka.shizuku.ShizukuProvider`，由 Application 监听 Binder，不依赖 ADB 开关。标准版 API/provider 为 13.1.5；兼容版为支持 API 23 的 12.2.0，不用 overrideLibrary 掩盖新版库的 minSdk 24。Root、Shizuku、ADB 在发送前选择通道；结果未知时不能自动切换通道重放。
 - Shizuku 管理器按 API_V23 权限所属包识别，用户点击时可通过标准 REQUEST_BINDER 入口恢复连接；回调严格核对管理器 UID、Binder 描述符、单次请求与超时，再交给本应用受保护的 Provider。不得放松 Provider 权限、代替管理器授予权限或执行回调附带的 APK 路径。
 - WebView 与 Gecko 的文件选择结果统一通过 WebUploads 解析 ClipData，多选优先、单选回退，保持顺序并去重；只接收 content URI，复制与数量/大小限制保持。回归需验证真实 Activity 文件回调返回两份文件及其字节。
